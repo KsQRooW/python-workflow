@@ -1,6 +1,16 @@
 name: Linters
 
-on: workflow_call
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: "Python version"
+        type: string
+        default: "3.12"
+      packaging_with:
+        description: "How to install packages (possible values: pip, poetry)"
+        type: string
+        default: "pip"
 
 jobs:
   check_changes:
@@ -29,9 +39,14 @@ jobs:
     uses: ./.github/workflows/code_linters.yml
     with:
       PY_FILES: ${{ needs.check_changes.outputs.PY_FILES }}
+      python_version: ${{ inputs.python_version }}
+      packaging_with: ${{ inputs.packaging_with }}
 
   requirements_linters:
     name: Running requirements linters
     if: ${{ needs.check_changes.outputs.REQUIREMENTS_CHANGED }} == "true" || ${{ needs.check_changes.outputs.PY_FILES }}
     needs: check_changes
     uses: ./.github/workflows/requirements_linters.yml
+    with:
+      python_version: ${{ inputs.python_version }}
+      packaging_with: ${{ inputs.packaging_with }}
