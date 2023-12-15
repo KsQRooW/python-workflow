@@ -16,9 +16,6 @@ on:
         type: string
         default: "requirements-docs.txt"
 
-permissions:
-  contents: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
