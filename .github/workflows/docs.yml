@@ -1,0 +1,47 @@
+name: Docs deploy
+
+on:
+  workflow_call:
+    inputs:
+      python_version:
+        description: "Python version"
+        type: string
+        default: "3.12"
+      packaging_with:
+        description: "How to install packages (possible values: pip, poetry)"
+        type: string
+        default: "pip"
+      from:
+        description: "From where install packages (example for poetry: docs, test)"
+        type: string
+        default: "requirements-docs.txt"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python_version }}
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: mkdocs-material-
+
+      - name: Install dependencies (pip)
+        if: ${{ inputs.packaging_with == "pip" }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ${{ inputs.from }}
+
+      - name: Install dependencies (poetry)
+        if: ${{ inputs.packaging_with == "poetry" }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry==1.7.1
+          poetry install --only ${{ inputs.from }}
+
+      - run: mkdocs gh-deploy --force
