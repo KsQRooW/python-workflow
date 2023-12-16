@@ -46,6 +46,5 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install poetry==1.7.1
           poetry install --only ${{ inputs.from }} --no-root
-          poetry shell
 
-      - run: mkdocs gh-deploy --force
+      - run: mkdocs gh-deploy --force || poetry run mkdocs gh-deploy --force
