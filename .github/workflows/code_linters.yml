@@ -15,6 +15,10 @@ on:
         description: "How to install packages (possible values: pip, poetry)"
         type: string
         default: "pip"
+      from:
+        description: "From where install packages (example for poetry: docs, test)"
+        type: string
+        default: "requirements-test.txt"
 
 jobs:
   ruff:
@@ -22,49 +26,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ inputs.python_version }}
+      - name: Setup Python ${{ inputs.python_version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python_version }}
 
       - name: Install dependencies (pip)
-        if: ${{ inputs.packaging_with == "pip" }}
+        if: ${{ inputs.packaging_with == 'pip' }}
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r ${{ inputs.from }}
 
       - name: Install dependencies (poetry)
-        if: ${{ inputs.packaging_with == "poetry" }}
+        if: ${{ inputs.packaging_with == 'poetry' }}
         run: |
           python -m pip install --upgrade pip
           python -m pip install poetry==1.7.1
-          poetry install
+          poetry install --with ${{ inputs.from }}
 
       - name: Ruff
-        run: ruff check ${{ inputs.PY_FILES }}
+        run: ruff check ${{ inputs.PY_FILES }} || poetry run ruff check ${{ inputs.PY_FILES }}
 
   mypy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ inputs.python_version }}
+      - name: Setup Python ${{ inputs.python_version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python_version }}
 
       - name: Install dependencies (pip)
-        if: ${{ inputs.packaging_with == "pip" }}
+        if: ${{ inputs.packaging_with == 'pip' }}
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r ${{ inputs.from }}
 
       - name: Install dependencies (poetry)
-        if: ${{ inputs.packaging_with == "poetry" }}
+        if: ${{ inputs.packaging_with == 'poetry' }}
         run: |
           python -m pip install --upgrade pip
           python -m pip install poetry==1.7.1
-          poetry install
+          poetry install --with ${{ inputs.from }}
 
       - name: MyPy
-        run: mypy ${{ inputs.PY_FILES }}
+        run: mypy ${{ inputs.PY_FILES }} || poetry run mypy ${{ inputs.PY_FILES }}
