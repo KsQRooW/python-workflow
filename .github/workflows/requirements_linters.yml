@@ -2,18 +2,19 @@ name: Requirements Linters Call
 
 on:
   workflow_call:
-    python_version:
-      description: "Python version"
-      type: string
-      default: "3.12"
-    packaging_with:
-      description: "How to install packages (possible values: pip, poetry)"
-      type: string
-      default: "pip"
-    from:
-      description: "From where install packages (example for poetry: docs, test)"
-      type: string
-      default: "requirements-test.txt"
+    inputs:
+      python_version:
+        description: "Python version"
+        type: string
+        default: "3.12"
+      packaging_with:
+        description: "How to install packages (possible values: pip, poetry)"
+        type: string
+        default: "pip"
+      from:
+        description: "From where install packages (example for poetry: docs, test)"
+        type: string
+        default: "requirements-test.txt"
 
 jobs:
   deptry:
